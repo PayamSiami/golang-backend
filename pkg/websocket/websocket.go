@@ -1,22 +1,24 @@
 package websocket
 
 import (
-	"log",
-	"net/http",
+	"log"
+	"net/http"
+
 	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{
-	ReadBufferSize: 1024,
+	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
 
-func Upgrade(w http.ResponseWriter,r *http.Request)(*websocket.Conn error) {
-	upgrader.CheckOrigin = func (r *http.Request) bool {return true}
-	conn, err := upgrader.Upgrade(w,r,nil)
+func Upgrade(w http.ResponseWriter, r *http.Request) (*websocket.Conn, error) {
+	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.PrintLn(err)
-		return nil,err
+		log.Println(err)
+		return nil, err
 	}
-		return conn,nil
+
+	return conn, nil
 }

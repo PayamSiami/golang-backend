@@ -1,37 +1,40 @@
-package main 
+
+package main
 
 import (
-	"net/http"
 	"fmt"
-	"websocket"
+	"net/http"
+
+	"github.com/akhil/golang-chat/pkg/websocket"
 )
 
-func serveWS(pool *websocket.Pool, w http.ResponseWriter, r *http.Request){
-	fmt.Println("Serving")
+func serveWS(pool *websocket.Pool, w http.ResponseWriter, r *http.Request) {
+	fmt.Println("websocket endpoint reached")
 
-	conn, err := websocket.Upgrade(w,r)
+	conn, err := websocket.Upgrade(w, r)
 
 	if err != nil {
-		fmt.Println("w," "%+\n",err)
+		fmt.Fprintf(w, "%+v\n", err)
 	}
-
 	client := &websocket.Client{
-		Conn: conn
-		Pool, pool,
+		Conn: conn,
+		Pool: pool,
 	}
+	pool.Register <- client
+	client.Read()
 }
 
-func setupRoutes () {
+func setupRoutes() {
 	pool := websocket.NewPool()
 	go pool.Start()
 
-	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request){
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		serveWS(pool, w, r)
 	})
 }
 
 func main() {
-	fmt.Println("Starting webserver...")
+	fmt.Println("chat project...")
 	setupRoutes()
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":9000", nil)
 }
